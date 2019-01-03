@@ -25,10 +25,7 @@ var controls;
 
 var objects = [];
 var targets = {
-    table: [],
-    sphere: [],
-    helix: [],
-    grid: []
+    sphere: []
 };
 initTable();
 init();
@@ -66,14 +63,6 @@ function init() {
 
         objects.push(object);
 
-        //
-
-        var object = new THREE.Object3D();
-        object.position.x = (i * 140) - 1330;
-        object.position.y = -(i * 180) + 990;
-
-        targets.table.push(object);
-
     }
 
     // sphere
@@ -99,47 +88,6 @@ function init() {
         targets.sphere.push(object);
 
     }
-
-    // helix
-
-    var vector = new THREE.Vector3();
-    var cylindrical = new THREE.Cylindrical();
-
-    for (var i = 0, l = objects.length; i < l; i++) {
-
-        var theta = i * 0.175 + Math.PI;
-        var y = -(i * 8) + 450;
-
-        var object = new THREE.Object3D();
-
-        cylindrical.set(900, theta, y);
-
-        object.position.setFromCylindrical(cylindrical);
-
-        vector.x = object.position.x * 2;
-        vector.y = object.position.y;
-        vector.z = object.position.z * 2;
-
-        object.lookAt(vector);
-
-        targets.helix.push(object);
-
-    }
-
-    // grid
-
-    for (var i = 0; i < objects.length; i++) {
-
-        var object = new THREE.Object3D();
-
-        object.position.x = ((i % 5) * 400) - 800;
-        object.position.y = (-(Math.floor(i / 5) % 5) * 400) + 800;
-        object.position.z = (Math.floor(i / 25)) * 1000 - 2000;
-
-        targets.grid.push(object);
-
-    }
-
     //
 
     renderer = new CSS3DRenderer();
@@ -147,7 +95,7 @@ function init() {
     document.getElementById('container').appendChild(renderer.domElement);
 
     controls = new OrbitControls(camera);
-    controls.autoRotateSpeed = 3;
+    controls.autoRotateSpeed = 4;
     controls.rotateSpeed = 0.5;
     controls.minDistance = 500;
     controls.maxDistance = 6000;
@@ -155,7 +103,50 @@ function init() {
     controls.dampingFactor = 0.16;
     controls.addEventListener('change', render);
 
-    transform(targets.sphere, 2000);
+    var button = document.getElementById('zoom');
+        var zoomState = 0;
+        button.addEventListener('click', function (event) {
+
+            var pos = camera.position;
+            var duration = 2000;
+            if (zoomState == 0) {
+                new TWEEN.Tween(pos)
+                    .to({
+                        x: 0,
+                        y: -120,
+                        z: 1800
+                    }, duration / 2)
+                    .onUpdate(render)
+                    .start();
+                zoomState = 1;
+            } else {
+                new TWEEN.Tween(pos)
+                    .to({
+                        x: 0,
+                        y: 0,
+                        z: 3000
+                    }, duration / 4)
+                    .onUpdate(render)
+                    .start();
+                zoomState = 0;
+            }
+
+        }, false);
+
+        var button = document.getElementById('rotate');
+        button.addEventListener('click', function (event) {
+            if (!controls.autoRotate) {
+                controls.autoRotate = true;
+            }
+            if (controls.autoRotateSpeed == 4) {
+                controls.autoRotateSpeed = 0.5;
+            } else {
+                controls.autoRotateSpeed = 4;
+            }
+
+        }, false);
+
+        transform(targets.sphere, 2000);
 
     window.addEventListener('resize', onWindowResize, false);
 
@@ -196,7 +187,7 @@ function transform(targets, duration) {
         .start();
 
     //相机推进
-    var pos = camera.position;
+    /* var pos = camera.position;
     new TWEEN.Tween(pos)
         .to({
             x: 0,
@@ -207,7 +198,7 @@ function transform(targets, duration) {
         .delay(duration * 2)
         .start().onComplete(function () {
             controls.autoRotate = true;
-        });
+        }); */
 
 }
 
